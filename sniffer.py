@@ -1,5 +1,6 @@
 from scapy.all import sniff, IP, TCP, UDP
 import datetime
+from collections import Counter
 
 
 class PacketInfo:
@@ -26,11 +27,7 @@ class PacketParser:
         timestamp=datetime.datetime.now()
         packet_info = PacketInfo(packet[IP].src,packet[IP].dst, protocol, size,timestamp)
         return packet_info
-        
-def packet_recieved(packet):
-    packet_info = PacketParser.parse(packet)
-    print(packet_info)
-
+    
 class PacketCapturer:
     def __init__(self,count,prn):
         self.count = count 
@@ -39,5 +36,37 @@ class PacketCapturer:
     def start(self):
         sniff(count=self.count,prn=self.prn)
 
-packet_capturer = PacketCapturer(count=1,prn=packet_recieved)
+class TrafficAnalyzer:
+     def __init__(self):
+          self.packets = []
+          self.ip_counter = Counter()
+          self.protocol_counter = Counter()
+
+     def add_packet(self,packet_info):
+          self.packets.append(packet_info)
+          self.ip_counter[packet_info.src_ip] +=1
+          self.protocol_counter[packet_info.protocol] +=1
+
+     def total_packets(self):
+        return len(self.packets)
+
+     def top_talkers(self,n=5):
+          return self.ip_counter.most_common(n)
+
+     def protocol_distribution(self):
+          return dict(self.protocol_counter)
+
+         
+def packet_recieved(packet):
+    packet_info = PacketParser.parse(packet)
+    traffic_analyzer.add_packet(packet_info)
+
+traffic_analyzer = TrafficAnalyzer()
+
+packet_capturer = PacketCapturer(count=5,prn=packet_recieved)
 packet_capturer.start()
+
+print(traffic_analyzer.total_packets())
+print(traffic_analyzer.top_talkers())
+print(traffic_analyzer.protocol_distribution())
+
