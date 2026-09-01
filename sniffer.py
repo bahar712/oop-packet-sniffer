@@ -55,18 +55,21 @@ class TrafficAnalyzer:
 
      def protocol_distribution(self):
           return dict(self.protocol_counter)
-
          
 def packet_recieved(packet):
     packet_info = PacketParser.parse(packet)
     traffic_analyzer.add_packet(packet_info)
+
+
+class ReportPrinter:
+     @staticmethod
+     def print_summary(analyzer):
+         print(analyzer.total_packets())         
 
 traffic_analyzer = TrafficAnalyzer()
 
 packet_capturer = PacketCapturer(count=5,prn=packet_recieved)
 packet_capturer.start()
 
-print(traffic_analyzer.total_packets())
-print(traffic_analyzer.top_talkers())
-print(traffic_analyzer.protocol_distribution())
+ReportPrinter.print_summary(traffic_analyzer)
 
