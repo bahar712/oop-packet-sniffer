@@ -19,10 +19,20 @@ def packet_recieved(packet):
     elif UDP in packet:
         protocol="UDP"
     else:
-        protocol="Diğer"
+        protocol="Other"
     size=len(packet)
     timestamp=datetime.datetime.now()
     packet_info = PacketInfo(packet[IP].src,packet[IP].dst, protocol, size,timestamp)
     print(packet_info)
 
-sonuc = sniff(count=1, prn=packet_recieved)
+class PacketCapturer:
+    def __init__(self,count,prn):
+        self.count = count 
+        self.prn = prn
+
+    def start(self):
+        sniff(count=self.count,prn=self.prn)
+        
+
+packet_capturer = PacketCapturer(count=1,prn=packet_recieved)
+packet_capturer.start()
