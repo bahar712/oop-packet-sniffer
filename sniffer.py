@@ -13,16 +13,22 @@ class PacketInfo:
     def __str__(self):
         return f" source IP: {self.src_ip}\n destination IP: {self.dst_ip} \n protocol: {self.protocol} \n size: {self.size} \n time stamp: {self.timestamp}"
 
+class PacketParser:
+    @staticmethod
+    def parse(packet):
+        if TCP in packet: 
+                protocol="TCP"
+        elif UDP in packet:
+                protocol="UDP"
+        else:
+                protocol="Other"
+        size=len(packet)
+        timestamp=datetime.datetime.now()
+        packet_info = PacketInfo(packet[IP].src,packet[IP].dst, protocol, size,timestamp)
+        return packet_info
+        
 def packet_recieved(packet):
-    if TCP in packet: 
-        protocol="TCP"
-    elif UDP in packet:
-        protocol="UDP"
-    else:
-        protocol="Other"
-    size=len(packet)
-    timestamp=datetime.datetime.now()
-    packet_info = PacketInfo(packet[IP].src,packet[IP].dst, protocol, size,timestamp)
+    packet_info = PacketParser.parse(packet)
     print(packet_info)
 
 class PacketCapturer:
@@ -32,7 +38,6 @@ class PacketCapturer:
 
     def start(self):
         sniff(count=self.count,prn=self.prn)
-        
 
 packet_capturer = PacketCapturer(count=1,prn=packet_recieved)
 packet_capturer.start()
